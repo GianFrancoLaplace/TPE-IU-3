@@ -60,37 +60,22 @@ class Game {
     resetGame() {
     }
 
-    function dibujarCirculo(){
+    // Dentro de la clase Game, reemplaza esto:
+
+    dibujarCirculo() {
         // Los círculos se dibujan con "paths" (caminos)
 
         // Círculo relleno
-        ctx.beginPath();  // Iniciar un nuevo camino
-        ctx.arc(
-            150,      // x: centro del círculo
-            350,      // y: centro del círculo
-            80,       // radio
-            0,        // ángulo inicial (radianes)
-            Math.PI * 2  // ángulo final (2π = círculo completo)
-        );
-        ctx.fillStyle = '#ffd93d';  // Amarillo
-        ctx.fill();  // Rellenar el camino
+        this.ctx.beginPath();  // ⚠️ Usa this.ctx
+        this.ctx.arc(150, 350, 80, 0, Math.PI * 2);
+        this.ctx.fillStyle = '#ffd93d';
+        this.ctx.fill(); // fondo
 
-        // Círculo solo con borde
-        ctx.beginPath();
-        ctx.arc(400, 350, 80, 0, Math.PI * 2);
-        ctx.strokeStyle = '#6bcf7f';  // Verde
-        ctx.lineWidth = 5;
-        ctx.stroke();  // Dibujar solo el borde
-
-        // Círculo con relleno Y borde
-        ctx.beginPath();
-        ctx.arc(650, 350, 80, 0, Math.PI * 2);
-        ctx.fillStyle = '#c77dff';  // Púrpura
-        ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 3;
-        ctx.stroke();
+        // Círculo con borde
+        this.ctx.beginPath();
+        this.ctx.arc(400, 350, 80, 0, Math.PI * 2);
+        this.ctx.strokeStyle = '#6bcf7f';
+        this.ctx.lineWidth = 5;
+        this.ctx.stroke(); // borde
     }
-
-    dibujarCirculo(){}
 }
