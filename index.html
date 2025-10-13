@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <Link rel="stylesheet"  href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1 style="color: #e94560; margin-top: 0;">🎮 BLOCKA</h1>
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+        <div class="game-info">
+            <span id="timer">⏱️ Tiempo: 0s</span>
+            <span style="margin-left: 30px;" id="level">📊 Nivel: 1</span>
+        </div>
+
+        <div class="instructions">
+            <p>🖱️ <strong>Click Izquierdo:</strong> Rotar a la izquierda</p>
+            <p>🖱️ <strong>Click Derecho:</strong> Rotar a la derecha</p>
+        </div>
+
+        <div class="controls">
+            <button id="startBtn">▶️ Comenzar</button>
+            <button id="resetBtn">🔄 Reiniciar</button>
+        </div>
+    </div>
+<script src="main.js"></script>
+</body>
+</html>
