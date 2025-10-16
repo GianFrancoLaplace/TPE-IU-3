@@ -1,32 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <Link rel="stylesheet"  href="styles.css">
+    <title>Juego de Puzzle Rotatorio</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: #f0f0f0;
+            margin-top: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        .game-container {
+            border: 3px solid #333;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 0 10px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #e6e6e6;
+        }
+    </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1 style="color: #e94560; margin-top: 0;">🎮 BLOCKA</h1>
-        <canvas id="gameCanvas" width="600" height="600"></canvas>
-
-        <div class="game-info">
-            <span id="timer">⏱️ Tiempo: 0s</span>
-            <span style="margin-left: 30px;" id="level">📊 Nivel: 1</span>
-        </div>
-
-        <div class="instructions">
-            <p>🖱️ <strong>Click Izquierdo:</strong> Rotar a la izquierda</p>
-            <p>🖱️ <strong>Click Derecho:</strong> Rotar a la derecha</p>
-        </div>
-
-        <div class="controls">
-            <button id="startBtn">▶️ Comenzar</button>
-            <button id="resetBtn">🔄 Reiniciar</button>
-        </div>
-    </div>
-    <script src="Game.js"></script>
-    <script src="Piece.js"></script>
-    <script src="main.js"></script>
+<h1>Juego de Puzzle Rotatorio</h1>
+<div class="game-container">
+    <canvas id="game-canvas" width="300" height="300"></canvas>
+</div>
+<div class="controls">
+    <button id="reset-button">Reiniciar Puzzle</button>
+</div>
+<script src="Game.js"></script>
 </body>
 </html>
+
