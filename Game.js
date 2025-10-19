@@ -1,6 +1,15 @@
+// ===== ELEMENTOS DEL DOM =====
 const canvas = document.querySelector('#game-canvas');
 const context = canvas.getContext('2d');
+const startBtn = document.getElementById('start-button');
 const resetBtn = document.getElementById('reset-button');
+const menuBtn = document.getElementById('menu-button');
+const welcomeScreen = document.getElementById('welcome-screen');
+const gameContent = document.getElementById('game-content');
+const timerDisplay = document.getElementById('timer-display');
+const levelDisplay = document.getElementById('level-display');
+
+// ===== IMÁGENES Y CONFIGURACIÓN =====
 const images = [
     "images/ocarinaoftime.jpeg",
     "images/Peg hawaiano 1.png",
@@ -10,13 +19,70 @@ const images = [
     "images/THE WITCHER 3.jpeg",
     "images/VALORANT.jpeg",
     "images/WARZONE.jpeg"
+];
 
-]
 const TILE_COUNT = 2;
-let nivel = 0
+let nivel = 0;
+let gameWon = false;
+let juegoActivo = false;
+let pieces = [];
 
-gameWon = false;
-pieces = [];
+// Función para iniciar el temporizador
+function iniciarTemporizador() {
+    tiempoInicio = Date.now();
+    juegoIniciado = true;
+
+    timerInterval = setInterval(() => {
+        if (!gameWon) {
+            tiempoActual = Math.floor((Date.now() - tiempoInicio) / 1000);
+            actualizarDisplayTiempo();
+        }
+    }, 1000);
+}
+
+// Función para detener el temporizador
+function detenerTemporizador() {
+    clearInterval(timerInterval);
+    return tiempoActual;
+}
+
+// Función para mostrar el tiempo
+function actualizarDisplayTiempo() {
+    const minutos = Math.floor(tiempoActual / 60);
+    const segundos = tiempoActual % 60;
+    const display = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+    document.getElementById('timer-display').textContent = display;
+}
+
+
+// ===== FUNCIÓN PARA MOSTRAR/OCULTAR PANTALLAS =====
+function mostrarBienvenida() {
+    welcomeScreen.classList.remove('hidden');
+    gameContent.classList.remove('active');
+    juegoActivo = false;
+}
+
+function mostrarJuego() {
+    welcomeScreen.classList.add('hidden');
+    gameContent.classList.add('active');
+}
+
+// ===== EVENT LISTENERS =====
+startBtn.addEventListener('click', () => {
+    iniciarTemporizador()
+    mostrarJuego();
+    startLevel(); // Inicia el primer nivel
+});
+
+menuBtn.addEventListener('click', () => {
+    mostrarBienvenida();
+    nivel = 0; // Resetear al nivel 1
+});
+
+resetBtn.addEventListener('click',initializePuzzle);
+
+canvas.addEventListener('click', onCanvasClick);
+
 function randomImage() {
     return images[nivel];
 }
@@ -33,7 +99,8 @@ canvas.addEventListener('click', onCanvasClick);
 
 
 function startLevel() {
-    // Si ya no hay más imágenes, muestra un mensaje final
+
+    iniciarTemporizador();
     if (nivel >= images.length) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.fillStyle = "black";
@@ -47,11 +114,13 @@ function startLevel() {
         return;
     }
 
-    // Le dice al objeto 'image' que cargue la imagen del nivel actual
+    // Actualizar display del nivel
+    levelDisplay.textContent = nivel + 1;
+
     image.src = images[nivel];
-    // Cuando la nueva imagen termine de cargar, se ejecuta esto:
     image.onload = function () {
         initializePuzzle();
+        juegoActivo = true; // Activar el juego
     };
 }
 
@@ -80,6 +149,7 @@ function initializePuzzle(){
     filtro();
 
 }
+
 function drawPieces(){
     context.clearRect(0, 0, canvas.width, canvas.height);
     const parteWidth = canvas.width/TILE_COUNT;
@@ -97,8 +167,9 @@ function drawPieces(){
         context.restore();
     })
 }
+
 function onCanvasClick(event) {
-    if (gameWon) return;
+    if (!juegoActivo || gameWon) return;
 
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -121,14 +192,14 @@ function onCanvasClick(event) {
 }
 
 /**
- * Checks if all pieces are correctly oriented.
+ *
  */
 function checkWinCondition() {
-    // Check if every piece's rotation is a multiple of 360 degrees (2 * PI)
     const isSolved = pieces.every(p => (p.rotation % (2 * Math.PI)).toFixed(4) == 0.0000);
 
     if (isSolved) {
         gameWon = true;
+        detenerTemporizador();
         setTimeout(() => {
             drawPieces(); // Redraw to show final state
             context.fillStyle = "rgba(0, 0, 0, 0.6)";
@@ -215,11 +286,5 @@ function setPixel(imageData,x,y){
                 imageData.data[index+2] = gray;
                 break;
     }
-
-
-
-
-
-
 }
 

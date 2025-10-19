@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Juego de Puzzle Rotatorio</title>
+    <title>Blocka - Juego de Puzzle Rotatorio</title>
     <style>
         body {
             font-family: 'Helvetica Neue', sans-serif;
@@ -13,41 +13,169 @@
             background-color: #f0f0f0;
             margin-top: 50px;
         }
+
         h1 {
             color: #333;
         }
+
+        /* CONTENEDOR PADRE */
         .game-container {
+            width: 500px;
+            min-height: 400px;
             border: 3px solid #333;
             box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-            cursor: pointer;
+            background: white;
+            position: relative;
         }
-        .controls {
-            margin-top: 20px;
+
+        /* PANTALLA DE BIENVENIDA */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 40px;
+            text-align: center;
         }
-        button {
-            padding: 10px 20px;
+
+        .welcome-screen h2 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-screen p {
+            color: #666;
             font-size: 16px;
-            margin: 0 10px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* CONTENIDO DEL JUEGO (oculto inicialmente) */
+        .game-content {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-content.active {
+            display: flex;
+        }
+
+        /* CANVAS más pequeño */
+        #game-canvas {
+            border: 2px solid #666;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        /* INFO DEL JUEGO (temporizador) */
+        .game-info {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .timer-container {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #timer-display {
+            color: #007bff;
+        }
+
+        /* CONTROLES */
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
             cursor: pointer;
             border: 1px solid #ccc;
             border-radius: 5px;
             background-color: #fff;
             transition: all 0.3s ease;
+            font-weight: 500;
         }
+
         button:hover {
             background-color: #e6e6e6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        button.primary {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        button.primary:hover {
+            background-color: #0056b3;
+        }
+
+        /* Ocultar elementos */
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-<h1>Juego de Puzzle Rotatorio</h1>
+<h1>Blocka - Puzzle Rotatorio</h1>
+
+<!-- CONTENEDOR PADRE -->
 <div class="game-container">
-    <canvas id="game-canvas" width="300" height="300"></canvas>
+
+    <!-- PANTALLA DE BIENVENIDA -->
+    <div class="welcome-screen" id="welcome-screen">
+        <h2>¡Bienvenido a Blocka!</h2>
+        <p>
+            Rota las piezas de la imagen hasta formar la imagen completa.<br>
+            <strong>Click izquierdo:</strong> Rotar a la izquierda<br>
+            <strong>Click derecho:</strong> Rotar a la derecha
+        </p>
+        <button class="primary" id="start-button">Comenzar Juego</button>
+    </div>
+
+    <!-- CONTENIDO DEL JUEGO (oculto inicialmente) -->
+    <div class="game-content" id="game-content">
+
+        <!-- Info del juego -->
+        <div class="game-info">
+            <div class="timer-container">
+                <span>Tiempo:</span>
+                <span id="timer-display">00:00</span>
+            </div>
+            <div>
+                <span>Nivel:</span>
+                <span id="level-display">1</span>
+            </div>
+        </div>
+
+        <!-- Canvas del juego -->
+        <canvas id="game-canvas" width="300" height="300"></canvas>
+
+        <!-- Controles -->
+        <div class="controls">
+            <button id="reset-button">Reiniciar Nivel</button>
+            <button id="menu-button">Volver al Menú</button>
+        </div>
+
+    </div>
+
 </div>
-<div class="controls">
-    <button id="reset-button">Reiniciar Puzzle</button>
-</div>
+
 <script src="Game.js"></script>
 </body>
 </html>
-
