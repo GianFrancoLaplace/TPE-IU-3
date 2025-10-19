@@ -81,7 +81,7 @@ menuBtn.addEventListener('click', () => {
 
 resetBtn.addEventListener('click',initializePuzzle);
 
-canvas.addEventListener('click', onCanvasClick);
+canvas.addEventListener('mousedown', onCanvasClick);
 
 function randomImage() {
     return images[nivel];
@@ -93,9 +93,6 @@ image.src = randomImage();
 image.onload = function () {
     initializePuzzle();
 }
-
-resetBtn.addEventListener('click', initializePuzzle);
-canvas.addEventListener('click', onCanvasClick);
 
 
 function startLevel() {
@@ -169,6 +166,8 @@ function drawPieces(){
 }
 
 function onCanvasClick(event) {
+    event.preventDefault();
+
     if (!juegoActivo || gameWon) return;
 
     const rect = canvas.getBoundingClientRect();
@@ -183,8 +182,13 @@ function onCanvasClick(event) {
     );
 
     if (clickedPiece) {
-        // rota 90 grados
-        clickedPiece.rotation += Math.PI / 2;
+        // Click izquierdo (0) = rotar izquierda (sentido antihorario)
+        // Click derecho (2) = rotar derecha (sentido horario)
+        if (event.button === 0) {
+            clickedPiece.rotation -= Math.PI / 2;  // -90° (izquierda)
+        } else if (event.button === 2) {
+            clickedPiece.rotation += Math.PI / 2;  // +90° (derecha)
+        }
         drawPieces();
         filtro();
         checkWinCondition();
