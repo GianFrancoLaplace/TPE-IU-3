@@ -8,8 +8,7 @@ const welcomeScreen = document.getElementById('welcome-screen');
 const gameContent = document.getElementById('game-content');
 
 // ===== CONSTANTES DEL JUEGO =====
-const BLOCKA_WIDTH = 300;   // Área de juego (piezas)
-const BLOCKA_HEIGHT = 300;  // Área de juego (piezas)
+const BLOCKA_SIZE = 300;  // Área de juego (piezas)
 const INFO_HEIGHT = 60;     // Altura del área de información superior
 const GAME_OFFSET_Y = INFO_HEIGHT; // Desplazamiento vertical del área de juego
 const hashMap =  new Map();
@@ -41,6 +40,13 @@ let tiempoInicio = 0;
 let tiempoActual = 0;
 let timerInterval = null;
 
+function inciarThumbail(){
+
+}
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
 
 // ===== DIBUJAR TODO EL JUEGO =====
 function drawGame() {
@@ -62,8 +68,13 @@ function drawPieces(){
     const horizontal = hashMap.get(tileCount).x;
     const vertical = hashMap.get(tileCount).y;
 
-    const parteWidth = BLOCKA_WIDTH / horizontal;
-    const parteHeight = BLOCKA_HEIGHT / vertical;
+    // const size = (horizontal + vertical) / 2;
+    //
+    // const parteWidth = BLOCKA_SIZE / size;
+    // const parteHeight = BLOCKA_SIZE / size;
+
+    const parteWidth = BLOCKA_SIZE / horizontal;
+    const parteHeight = BLOCKA_SIZE / vertical;
 
     pieces.forEach(piece => {
         context.save();
@@ -108,14 +119,14 @@ function formatearTiempo(segundos) {
 function drawInfo() {
     // Fondo del área de info
     context.fillStyle = "#f0f0f0";
-    context.fillRect(0, 0, BLOCKA_WIDTH, INFO_HEIGHT);
+    context.fillRect(0, 0, BLOCKA_SIZE, INFO_HEIGHT);
 
     // Línea divisoria
     context.strokeStyle = "#333";
     context.lineWidth = 2;
     context.beginPath();
     context.moveTo(0, INFO_HEIGHT);
-    context.lineTo(BLOCKA_WIDTH, INFO_HEIGHT);
+    context.lineTo(BLOCKA_SIZE, INFO_HEIGHT);
     context.stroke();
 
     // Configuración de texto
@@ -131,9 +142,9 @@ function drawInfo() {
     // Nivel (derecha)
     context.fillStyle = "#333";
     context.textAlign = "right";
-    context.fillText("Nivel:", BLOCKA_WIDTH - 15, 30);
+    context.fillText("Nivel:", BLOCKA_SIZE - 15, 30);
     context.fillStyle = "#28a745";
-    context.fillText((nivel + 1).toString(), BLOCKA_WIDTH - 15, 50);
+    context.fillText((nivel + 1).toString(), BLOCKA_SIZE - 15, 50);
 }
 
 
@@ -193,7 +204,7 @@ function startLevel() {
         return;
     }
 
-    image.src = images[nivel];
+    image.src = images[getRandomInt(images.length)];
     image.onload = function () {
         initializePuzzle();
         juegoActivo = true; // Activar el juego
@@ -212,8 +223,8 @@ function initializePuzzle(){
     const horizontal = hashMap.get(tileCount).x;
     const vertical = hashMap.get(tileCount).y;
 
-    const parteWidth = BLOCKA_WIDTH   / horizontal;
-    const parteHeight = BLOCKA_HEIGHT / vertical;
+    const parteWidth = BLOCKA_SIZE   / horizontal;
+    const parteHeight = BLOCKA_SIZE / vertical;
     const rotaciones = [0, Math.PI / 2, Math.PI, Math.PI * 1.5];
 
     for(let x = 0; x < horizontal; x++){
@@ -242,8 +253,8 @@ function onCanvasClick(event) {
     const horizontal = hashMap.get(tileCount).x;
     const vertical = hashMap.get(tileCount).y;
 
-    const tileW = BLOCKA_WIDTH / horizontal;
-    const tileH = BLOCKA_HEIGHT / vertical;
+    const tileW = BLOCKA_SIZE / horizontal;
+    const tileH = BLOCKA_SIZE / vertical;
 
     const clickedPiece = pieces.find(piece =>
         x >= piece.dx && x < piece.dx + tileW &&
@@ -272,12 +283,12 @@ function checkWinCondition() {
 
             // Overlay de victoria
             context.fillStyle = "rgba(0, 0, 0, 0.6)";
-            context.fillRect(0, GAME_OFFSET_Y, BLOCKA_WIDTH, BLOCKA_HEIGHT);
+            context.fillRect(0, GAME_OFFSET_Y, BLOCKA_SIZE, BLOCKA_SIZE);
             context.fillStyle = "white";
             context.font = "bold 40px 'Helvetica Neue'";
             context.textAlign = "center";
-            context.fillText("¡Ganaste!", BLOCKA_WIDTH / 2, canvas.height / 2);
-            context.fillText("avanzando...", BLOCKA_WIDTH / 2, canvas.height / 2 + 40);
+            context.fillText("¡Ganaste!", BLOCKA_SIZE / 2, canvas.height / 2);
+            context.fillText("avanzando...", BLOCKA_SIZE / 2, canvas.height / 2 + 40);
 
             nivel++;
             setTimeout(startLevel, 2000);
@@ -292,8 +303,8 @@ function filtro() {
     const imageData = context.getImageData(
         0,
         GAME_OFFSET_Y,
-        BLOCKA_WIDTH,
-        BLOCKA_HEIGHT
+        BLOCKA_SIZE,
+        BLOCKA_SIZE
     );
 
     for(let x = 0; x < imageData.width; x++){
