@@ -6,8 +6,17 @@ const resetBtn = document.getElementById('reset-button');
 const menuBtn = document.getElementById('menu-button');
 const welcomeScreen = document.getElementById('welcome-screen');
 const gameContent = document.getElementById('game-content');
-const timerDisplay = document.getElementById('timer-display');
-const levelDisplay = document.getElementById('level-display');
+
+// ===== CONSTANTES DEL JUEGO =====
+const BLOCKA_WIDTH = 300;   // Área de juego (piezas)
+const BLOCKA_HEIGHT = 300;  // Área de juego (piezas)
+const INFO_HEIGHT = 60;     // Altura del área de información superior
+const GAME_OFFSET_Y = INFO_HEIGHT; // Desplazamiento vertical del área de juego
+const hashMap =  new Map();
+
+hashMap.set(4, {x: 2, y: 2});
+hashMap.set(6, {x: 3, y: 2});
+hashMap.set(8, {x: 4, y: 2});
 
 // ===== IMÁGENES Y CONFIGURACIÓN =====
 const images = [
@@ -21,37 +30,110 @@ const images = [
     "images/WARZONE.jpeg"
 ];
 
-const TILE_COUNT = 2;
 let nivel = 0;
 let gameWon = false;
 let juegoActivo = false;
 let pieces = [];
+let tileCount = 4;
 
-// Función para iniciar el temporizador
+// ===== TEMPORIZADOR =====
+let tiempoInicio = 0;
+let tiempoActual = 0;
+let timerInterval = null;
+
+
+// ===== DIBUJAR TODO EL JUEGO =====
+function drawGame() {
+    // Limpiar todo el canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Dibujar área de información
+    drawInfo();
+
+    // 2. Dibujar las piezas
+    drawPieces();
+
+    // 3. Aplicar filtro
+    filtro();
+}
+
+// ===== DIBUJAR PIEZAS (modificado para usar GAME_OFFSET_Y) =====
+function drawPieces(){
+    const horizontal = hashMap.get(tileCount).x;
+    const vertical = hashMap.get(tileCount).y;
+
+    const parteWidth = BLOCKA_WIDTH / horizontal;
+    const parteHeight = BLOCKA_HEIGHT / vertical;
+
+    pieces.forEach(piece => {
+        context.save();
+        context.translate(piece.dx + parteWidth/2, piece.dy + parteHeight/2);
+        context.rotate(piece.rotation);
+        context.drawImage(
+            image,
+            piece.sx, piece.sy, parteWidth, parteHeight,
+            -parteWidth/2, -parteHeight/2, parteWidth, parteHeight
+        );
+        context.restore();
+    })
+}
+
+// ===== TEMPORIZADOR =====
 function iniciarTemporizador() {
     tiempoInicio = Date.now();
-    juegoIniciado = true;
+    tiempoActual = 0;
 
     timerInterval = setInterval(() => {
         if (!gameWon) {
             tiempoActual = Math.floor((Date.now() - tiempoInicio) / 1000);
-            actualizarDisplayTiempo();
+            drawGame(); // Redibujar todo para actualizar el tiempo
         }
     }, 1000);
 }
 
-// Función para detener el temporizador
 function detenerTemporizador() {
-    clearInterval(timerInterval);
-    return tiempoActual;
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
 }
 
-// Función para mostrar el tiempo
-function actualizarDisplayTiempo() {
-    const minutos = Math.floor(tiempoActual / 60);
-    const segundos = tiempoActual % 60;
-    const display = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-    document.getElementById('timer-display').textContent = display;
+function formatearTiempo(segundos) {
+    const minutos = Math.floor(segundos / 60);
+    const segs = segundos % 60;
+    return `${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
+}
+
+// ===== DIBUJAR ÁREA DE INFORMACIÓN =====
+function drawInfo() {
+    // Fondo del área de info
+    context.fillStyle = "#f0f0f0";
+    context.fillRect(0, 0, BLOCKA_WIDTH, INFO_HEIGHT);
+
+    // Línea divisoria
+    context.strokeStyle = "#333";
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(0, INFO_HEIGHT);
+    context.lineTo(BLOCKA_WIDTH, INFO_HEIGHT);
+    context.stroke();
+
+    // Configuración de texto
+    context.fillStyle = "#333";
+    context.font = "bold 18px 'Helvetica Neue'";
+    context.textAlign = "left";
+
+    // Temporizador (izquierda)
+    context.fillText("Tiempo:", 15, 30);
+    context.fillStyle = "#007bff";
+    context.fillText(formatearTiempo(tiempoActual), 15, 50);
+
+    // Nivel (derecha)
+    context.fillStyle = "#333";
+    context.textAlign = "right";
+    context.fillText("Nivel:", BLOCKA_WIDTH - 15, 30);
+    context.fillStyle = "#28a745";
+    context.fillText((nivel + 1).toString(), BLOCKA_WIDTH - 15, 50);
 }
 
 
@@ -111,9 +193,6 @@ function startLevel() {
         return;
     }
 
-    // Actualizar display del nivel
-    levelDisplay.textContent = nivel + 1;
-
     image.src = images[nivel];
     image.onload = function () {
         initializePuzzle();
@@ -124,57 +203,47 @@ function startLevel() {
 function initializePuzzle(){
     gameWon = false;
     pieces = [];
+    juegoActivo = true;
 
+    // Iniciar temporizador
+    detenerTemporizador();
+    iniciarTemporizador();
 
-    const parteWidth = canvas.width/TILE_COUNT;
-    const parteHeight = canvas.height/TILE_COUNT;
-    const rotaciones = [0, Math.PI / 2, Math.PI, Math.PI * 1.5]; // 0, 90, 180, 270
+    const horizontal = hashMap.get(tileCount).x;
+    const vertical = hashMap.get(tileCount).y;
 
-    for(let x = 0; x < TILE_COUNT;x++){
-        for(let y = 0; y < TILE_COUNT;y++){
+    const parteWidth = BLOCKA_WIDTH   / horizontal;
+    const parteHeight = BLOCKA_HEIGHT / vertical;
+    const rotaciones = [0, Math.PI / 2, Math.PI, Math.PI * 1.5];
+
+    for(let x = 0; x < horizontal; x++){
+        for(let y = 0; y < vertical; y++){
             const piece = {
-                sx : x * parteWidth,
-                sy : y * parteHeight,
-                dx : x * parteWidth,
-                dy : y * parteHeight,
-                rotation : rotaciones[Math.floor(Math.random() * rotaciones.length)],
+                sx: x * parteWidth,
+                sy: y * parteHeight,
+                dx: x * parteWidth,
+                dy: y * parteHeight + GAME_OFFSET_Y, // ← AGREGADO OFFSET
+                rotation: rotaciones[Math.floor(Math.random() * rotaciones.length)],
             }
             pieces.push(piece);
         }
     }
-    drawPieces();
-    filtro();
 
-}
-
-function drawPieces(){
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    const parteWidth = canvas.width/TILE_COUNT;
-    const parteHeight = canvas.height/TILE_COUNT;
-
-    pieces.forEach(piece => {
-        context.save();
-        context.translate(piece.dx+parteWidth/2,piece.dy+parteHeight/2);
-        context.rotate(piece.rotation);
-        context.drawImage(
-            image,
-            piece.sx,piece.sy,parteWidth,parteHeight,
-            -parteWidth/2,-parteHeight/2,parteWidth,parteHeight
-        );
-        context.restore();
-    })
+    drawGame(); // ← NUEVA FUNCIÓN QUE DIBUJA TODO
 }
 
 function onCanvasClick(event) {
-    event.preventDefault();
-
     if (!juegoActivo || gameWon) return;
 
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    const tileW = canvas.width / TILE_COUNT;
-    const tileH = canvas.height / TILE_COUNT;
+
+    const horizontal = hashMap.get(tileCount).x;
+    const vertical = hashMap.get(tileCount).y;
+
+    const tileW = BLOCKA_WIDTH / horizontal;
+    const tileH = BLOCKA_HEIGHT / vertical;
 
     const clickedPiece = pieces.find(piece =>
         x >= piece.dx && x < piece.dx + tileW &&
@@ -182,15 +251,8 @@ function onCanvasClick(event) {
     );
 
     if (clickedPiece) {
-        // Click izquierdo (0) = rotar izquierda (sentido antihorario)
-        // Click derecho (2) = rotar derecha (sentido horario)
-        if (event.button === 0) {
-            clickedPiece.rotation -= Math.PI / 2;  // -90° (izquierda)
-        } else if (event.button === 2) {
-            clickedPiece.rotation += Math.PI / 2;  // +90° (derecha)
-        }
-        drawPieces();
-        filtro();
+        clickedPiece.rotation += Math.PI / 2;
+        drawGame(); // ← Usar drawGame en lugar de drawPieces + filtro
         checkWinCondition();
     }
 }
@@ -203,16 +265,20 @@ function checkWinCondition() {
 
     if (isSolved) {
         gameWon = true;
-        detenerTemporizador();
+        detenerTemporizador(); // ← Detener temporizador
+
         setTimeout(() => {
-            drawPieces(); // Redraw to show final state
+            drawGame(); // Redibujar sin filtro
+
+            // Overlay de victoria
             context.fillStyle = "rgba(0, 0, 0, 0.6)";
-            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillRect(0, GAME_OFFSET_Y, BLOCKA_WIDTH, BLOCKA_HEIGHT);
             context.fillStyle = "white";
             context.font = "bold 40px 'Helvetica Neue'";
             context.textAlign = "center";
-            context.fillText("¡Ganaste!", canvas.width / 2, canvas.height / 2);
-            context.fillText("avanzando...", canvas.width / 2, canvas.height / 2 + 40);
+            context.fillText("¡Ganaste!", BLOCKA_WIDTH / 2, canvas.height / 2);
+            context.fillText("avanzando...", BLOCKA_WIDTH / 2, canvas.height / 2 + 40);
+
             nivel++;
             setTimeout(startLevel, 2000);
         }, 100);
@@ -222,20 +288,26 @@ function checkWinCondition() {
 
 
 function filtro() {
-    const imageData = context.getImageData(0, 0, 300, 300);
+    // Obtener solo el área de juego (sin el área de info)
+    const imageData = context.getImageData(
+        0,
+        GAME_OFFSET_Y,
+        BLOCKA_WIDTH,
+        BLOCKA_HEIGHT
+    );
 
-    for(let x = 0;x<imageData.width;x++){
-        for(let y=0;y<imageData.height;y++){
-            setPixel(imageData,x,y)
+    for(let x = 0; x < imageData.width; x++){
+        for(let y = 0; y < imageData.height; y++){
+            setPixel(imageData, x, y);
         }
-
     }
-    context.putImageData(imageData, 0, 0);
 
+    // Volver a poner la imagen filtrada en el área de juego
+    context.putImageData(imageData, 0, GAME_OFFSET_Y);
 }
 
 function setPixel(imageData,x,y){
-    const index = (x+y*imageData.width)*4;
+    const index = (x + y * imageData.width ) * 4;
     const r = imageData.data[index];
     const g = imageData.data[index + 1];
     const b = imageData.data[index + 2];
