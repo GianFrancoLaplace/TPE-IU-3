@@ -41,7 +41,19 @@ let tiempoActual = 0;
 let timerInterval = null;
 
 function inciarThumbail(){
+    dibujarImagenes();
+}
 
+function dibujarImagenes(){
+    const y = canvas.height - 50 ;
+    const x = canvas.width / images.length;
+
+    console.log("dibujar Imagenes");
+
+    for (let i = 0; i < images.length; i++) {
+        context.rect(x * i, y, 100, 100);
+        context.fillRect(x * i, y, 30, 30)
+    }
 }
 
 function getRandomInt(max) {
@@ -53,14 +65,16 @@ function drawGame() {
     // Limpiar todo el canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
 
+    setTimeout(inciarThumbail, 1000);
+
     // 1. Dibujar área de información
-    drawInfo();
-
-    // 2. Dibujar las piezas
-    drawPieces();
-
-    // 3. Aplicar filtro
-    filtro();
+    // drawInfo();
+    //
+    // // 2. Dibujar las piezas
+    // drawPieces();
+    //
+    // // 3. Aplicar filtro
+    // filtro();
 }
 
 // ===== DIBUJAR PIEZAS (modificado para usar GAME_OFFSET_Y) =====
