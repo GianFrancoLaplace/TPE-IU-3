@@ -40,8 +40,8 @@ let tiempoInicio = 0;
 let tiempoActual = 0;
 let timerInterval = null;
 
-function inciarThumbnail(){
-    const y = canvas.height - 50 ;
+async function inciarThumbnail() {
+    const y = canvas.height - 50;
     const x = canvas.width / images.length;
     const thumbnails = [];
 
@@ -49,7 +49,7 @@ function inciarThumbnail(){
         const imagen = new Image();
         imagen.src = images[i];
         const thumbnail = {
-            imagen:imagen,        // La imagen cargada
+            imagen: imagen,        // La imagen cargada
             x: x * i,                 // Posición X donde dibujar
             y: y,                     // Posición Y donde dibujar
             width: 30,                // Ancho del thumbnail
@@ -62,26 +62,7 @@ function inciarThumbnail(){
         dibujarThumbnail(thumbnail)
     }
 
-    // Recorrer
-    let random = images.length;
-    console.log(random);
-    let i = 0;
-
-    while (i < random) {
-        const selected = thumbnails[i];
-        selected.isSelected = true;
-
-        setTimeout(()=> {
-            dibujarThumbnail(selected);
-        }, 400 )
-
-        i++;
-
-        // selected.isSelected = false;
-        // dibujarThumbnail(selected);
-    }
-
-
+    await animarRuleta(thumbnails);
 }
 
 function dibujarThumbnail(thumbnailData){
@@ -103,6 +84,24 @@ function dibujarThumbnail(thumbnailData){
             thumbnailData.width,
             thumbnailData.height
         );
+    }
+}
+
+async function animarRuleta(thumbnails) {
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    for (let i = 0; i < thumbnails.length; i++) {
+        const selected = thumbnails[i];
+        selected.isSelected = true;
+        dibujarThumbnail(selected);
+
+        console.log("Antes Sleep");
+        await sleep(1500); // ESPERA 1.5 segundos
+        console.log("Despues Sleep");
+
+        selected.isSelected = false;
+        context.clearRect(selected.x, selected.y, 30, 30);
+        dibujarThumbnail(selected);
     }
 }
 
