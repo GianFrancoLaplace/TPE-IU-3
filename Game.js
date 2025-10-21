@@ -40,19 +40,44 @@ let tiempoInicio = 0;
 let tiempoActual = 0;
 let timerInterval = null;
 
-function inciarThumbail(){
-    dibujarImagenes();
-}
-
-function dibujarImagenes(){
+function inciarThumbnail(){
     const y = canvas.height - 50 ;
     const x = canvas.width / images.length;
 
-    console.log("dibujar Imagenes");
-
     for (let i = 0; i < images.length; i++) {
-        context.rect(x * i, y, 100, 100);
-        context.fillRect(x * i, y, 30, 30)
+        const thumbnail = {
+            imagen: images[i],      // La imagen cargada
+            x: x * i,                 // Posición X donde dibujar
+            y: y,                 // Posición Y donde dibujar
+            width: 30,             // Ancho del thumbnail
+            height: 30,            // Alto del thumbnail
+            isSelected: false,       // ¿Está actualmente resaltado?
+            borderColor: "black",       // Color del borde
+            borderWidth: 2        // Grosor del borde
+        }
+        dibujarThumbnail(thumbnail)
+    }
+}
+
+function dibujarThumbnail(thumbnailData){
+    context.drawImage(
+        thumbnailData.imagen,
+        thumbnailData.x,
+        thumbnailData.y,
+        thumbnailData.width,
+        thumbnailData.height
+    )
+
+    // 2. Si está seleccionado, dibujar borde resaltado
+    if (thumbnailData.isSelected) {
+        context.strokeStyle = thumbnailData.borderColor;
+        ctx.lineWidth = thumbnailData.borderWidth;
+        ctx.strokeRect(
+            thumbnailData.x,
+            thumbnailData.y,
+            thumbnailData.width,
+            thumbnailData.height
+        );
     }
 }
 
@@ -65,7 +90,7 @@ function drawGame() {
     // Limpiar todo el canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    setTimeout(inciarThumbail, 1000);
+    setTimeout(inciarThumbnail, 1000);
 
     // 1. Dibujar área de información
     // drawInfo();
