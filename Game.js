@@ -43,20 +43,45 @@ let timerInterval = null;
 function inciarThumbnail(){
     const y = canvas.height - 50 ;
     const x = canvas.width / images.length;
+    const thumbnails = [];
 
     for (let i = 0; i < images.length; i++) {
+        const imagen = new Image();
+        imagen.src = images[i];
         const thumbnail = {
-            imagen: images[i],      // La imagen cargada
+            imagen:imagen,        // La imagen cargada
             x: x * i,                 // Posición X donde dibujar
-            y: y,                 // Posición Y donde dibujar
-            width: 30,             // Ancho del thumbnail
-            height: 30,            // Alto del thumbnail
-            isSelected: false,       // ¿Está actualmente resaltado?
-            borderColor: "black",       // Color del borde
-            borderWidth: 2        // Grosor del borde
+            y: y,                     // Posición Y donde dibujar
+            width: 30,                // Ancho del thumbnail
+            height: 30,               // Alto del thumbnail
+            isSelected: false,        // ¿Está actualmente resaltado?
+            borderColor: "black",     // Color del borde
+            borderWidth: 2            // Grosor del borde
         }
+        thumbnails.push(thumbnail);
         dibujarThumbnail(thumbnail)
     }
+
+    // Recorrer
+    let random = images.length;
+    console.log(random);
+    let i = 0;
+
+    while (i < random) {
+        const selected = thumbnails[i];
+        selected.isSelected = true;
+
+        setTimeout(()=> {
+            dibujarThumbnail(selected);
+        }, 400 )
+
+        i++;
+
+        // selected.isSelected = false;
+        // dibujarThumbnail(selected);
+    }
+
+
 }
 
 function dibujarThumbnail(thumbnailData){
@@ -71,8 +96,8 @@ function dibujarThumbnail(thumbnailData){
     // 2. Si está seleccionado, dibujar borde resaltado
     if (thumbnailData.isSelected) {
         context.strokeStyle = thumbnailData.borderColor;
-        ctx.lineWidth = thumbnailData.borderWidth;
-        ctx.strokeRect(
+        context.lineWidth = thumbnailData.borderWidth;
+        context.strokeRect(
             thumbnailData.x,
             thumbnailData.y,
             thumbnailData.width,
