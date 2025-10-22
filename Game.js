@@ -35,6 +35,7 @@ let juegoActivo = false;
 let pieces = [];
 let tileCount = 4;
 let imagenSeleccionada = null; // Guardar qué imagen eligió la ruleta
+let ruletaActiva = false
 
 // ===== TEMPORIZADOR =====
 let tiempoInicio = 0;
@@ -105,7 +106,7 @@ async function ejecutarRuleta() {
             context.clearRect(0, y - 5, canvas.width, 40);
             thumbnails.forEach(thumb => dibujarThumbnail(thumb));
 
-            await sleep(200);
+            await sleep(10);
         }
     }
 
@@ -118,7 +119,9 @@ async function ejecutarRuleta() {
     context.fillText("¡Imagen seleccionada!", canvas.width / 2, canvas.height / 2 + 20);
 
     await sleep(1500);
-
+    ruletaActiva = false;
+    console.log("Estatua");
+    detenerTemporizador()
     return imagenSeleccionada;
 }
 
@@ -180,9 +183,12 @@ function iniciarTemporizador() {
     tiempoInicio = Date.now();
     tiempoActual = 0;
 
+    if(ruletaActiva) return;
+
     timerInterval = setInterval(() => {
         if (!gameWon) {
             tiempoActual = Math.floor((Date.now() - tiempoInicio) / 1000);
+            console.log(tiempoActual);
             drawInfo();
         }
     }, 1000);
@@ -203,6 +209,7 @@ function formatearTiempo(segundos) {
 
 // ===== DIBUJAR ÁREA DE INFORMACIÓN =====
 function drawInfo() {
+    if (ruletaActiva) return
     context.fillStyle = "#f0f0f0";
     context.fillRect(0, 0, BLOCKA_SIZE, INFO_HEIGHT);
 
@@ -232,6 +239,10 @@ function clearInfo() {
     context.fillRect(0, 0, BLOCKA_SIZE, INFO_HEIGHT);
 }
 
+function clearRuleta() {
+    context.fillRect(0, GAME_OFFSET_Y, BLOCKA_SIZE, INFO_HEIGHT);
+}
+
 // ===== MOSTRAR/OCULTAR PANTALLAS =====
 function mostrarBienvenida() {
     welcomeScreen.classList.remove('hidden');
@@ -249,14 +260,12 @@ function mostrarJuego() {
 startBtn.addEventListener('click', async () => {
     mostrarJuego();
 
-    // 1. Ejecutar ruleta (SOLO UNA VEZ)
     await ejecutarRuleta();
 
-    // 2. Iniciar el juego con la imagen seleccionada
     image.src = imagenSeleccionada;
     image.onload = function() {
         initializePuzzle();
-        iniciarTemporizador(); // ← Iniciar temporizador DESPUÉS de la ruleta
+        iniciarTemporizador();
     };
 });
 
@@ -373,11 +382,13 @@ async function checkWinCondition() {
 
             nivel++;
 
-            clearInfo();
+            ruletaActiva = true;
             setTimeout( async () => {
-                await ejecutarRuleta
-                // clearRuleta ??
+                clearInfo()
+                await ejecutarRuleta()
             }, 2000);
+
+            detenerTemporizador();
 
             setTimeout(startLevel, 2000);
         }, 100);
